@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# List availables bikes
+# from velib' API
+#
+
+curl -sX GET "https://opendata.paris.fr/api/records/1.0/search/?dataset=velib-disponibilite-en-temps-reel&q=gobelins&facet=overflowactivation&facet=creditcard&facet=kioskstate&facet=station_state" \
+    | jq '[.records[].fields] | .[] | select(.station_state == "Operative")' \
+    | jq -r '"\(.station_name): \(.nbbike) Electrique / \(.nbebike) Mecanique"'
