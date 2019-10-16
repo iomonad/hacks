@@ -3,4 +3,3 @@
 curl -s https://lobste.rs/newest.json \
    | jq -r 'sort_by(-.score)[]|"(\(.score)) \(.title) - \(.url)"' \
    | head -n 10
-
