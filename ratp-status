@@ -8,5 +8,5 @@
 
 curl -sX GET "https://api-ratp.pierre-grimaud.fr/v4/traffic/metros" \
      -H  "accept: application/json" \
-    | jq '.result.metros[] | select(.slug!="normal")' \
-    | jq -r '"----\nLigne \(.line): (\(.slug)): \(.message)\n----\n"'
+    | jq '.result.metros[] | select(.slug=="critical")' \
+    | jq -r '"Ligne \(.line): (\(.slug)): \(.message)\n"'
