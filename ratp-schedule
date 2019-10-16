@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Get metro schedule from work 
+#
+
+curl -sX GET "https://api-ratp.pierre-grimaud.fr/v4/schedules/metros/7/Gobelins/R" \
+  -H  "accept: application/json" \
+  | jq -r '"Prochain train: \(.result.schedules[].message)"'
