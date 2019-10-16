@@ -1,0 +1,5 @@
+#!/bin/bash
+
+curl -sH "Accept: application/json" https://icanhazdadjoke.com/ \
+  | jq -r ".joke" \
+  | espeak --stdin > /dev/null 2>&1
