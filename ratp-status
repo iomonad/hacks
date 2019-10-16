@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/bin/bash
 #
 # (c) 2017 iomonad <clement@trosa.io>
 #
@@ -6,24 +6,7 @@
 # traffic and display perturbations
 #
 
-use strict;
-use utf8;
-
-use LWP::UserAgent;
-use HTML::TreeBuilder;
-
-my $ua = new LWP::UserAgent (keep_alive => 1);
-my $tree = HTML::TreeBuilder->new;
-my $req = new HTTP::Request 'GET' => 'https://www.ratp.fr/infos-trafic';
-
-$ua->agent("Mozilla/5.0 (X11; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0");
-$req->header(Accept => "text/html, */*;q=0.1");
-
-my $res = $ua->request($req);
-print $res->decoded_content;
-if ($res->is_success) {
-   my $parsed = $tree->parse-content(
-       $res->decoded_content
-   );
-   print $res->decoded_content;
-} else { die $res->status_line }
+curl -sX GET "https://api-ratp.pierre-grimaud.fr/v4/traffic/metros" \
+     -H  "accept: application/json" \
+    | jq '.result.metros[] | select(.slug!="normal")' \
+    | jq -r '"----\nLigne \(.line): (\(.slug)): \(.message)\n----\n"'
