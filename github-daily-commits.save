@@ -1,0 +1,8 @@
+
+
+#
+
+
+
+:b(ex:.com/users/iomonad/events \
+    | jq -r '.[]|select(.type=="PushEvent")|"\(.created_at) @ \(.repo.name) - \(.payload.commits[].message)"'

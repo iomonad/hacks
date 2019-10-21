@@ -1,4 +1,5 @@
 #!/bin/bash
 
  curl -sX GET https://api.github.com/users/iomonad/events \
-    | jq -r '.[]|select(.type=="PushEvent")|"\(.created_at) @ \(.repo.name) - \(.payload.commits[].message)"'
+    | jq -r '.[]|select(.type=="PushEvent")|"\(.created_at) @ \(.repo.name) - \(.payload.commits[].message)"' \
+    | grep --color=never $(date  +'%Y-%m-%d')
