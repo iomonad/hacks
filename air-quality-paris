@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -s https://www.airparif.asso.fr/rss/indices \
+  | grep $(date +'%d/%m/%Y') \
+  | sed -n 2p | sed -n 's:.*\[CDATA\[\(.*\)\]\].*:\1:p'
