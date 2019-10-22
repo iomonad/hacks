@@ -1,0 +1,94 @@
+#!/usr/bin/python
+#
+# (c) iomonad - <me@trosa.io>
+#
+# Simple telegram bot that notify
+# everyday before going to work Paris
+# metropolitan status & velib disposition
+# near home.
+#
+
+import os
+import subprocess
+
+from telegram.ext import Updater
+from telegram.ext import CommandHandler
+
+
+class Ratp(object):
+    def __init__(self):
+        super(Ratp, self).__init__()
+
+    def traffic_status(self):
+        try:
+            result = subprocess.run(["ratp-status"], stdout=subprocess.PIPE, shell=True)
+        except Exception:
+            return "Error"
+        if not result.stdout:
+            return "Aucunes perturbations sur l'ensemble du reseau."
+        return result.stdout
+
+    def schedule(self, station):
+        try:
+            result = subprocess.run(
+                ["ratp-schedule"], stdout=subprocess.PIPE, shell=True
+            )
+        except Exception:
+            return "Error"
+        if not result.stdout:
+            return "Erreur lors de la recuperation des datas."
+        return result.stdout
+
+
+class Assistant(object):
+    def __init__(self, token=None):
+        super(Assistant, self).__init__()
+        self.token = token
+        self.updater = Updater(token=self.token, use_context=True)
+        self.dispatcher = self.updater.dispatcher
+        self.ratp = Ratp()
+
+    def cmd_start(self, update, ctx):
+        ctx.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="""
+            Salut, je suis ton assistant des transports en communs.
+            Je suis capable de te fournir des informations relatives
+            sur le traffic du metro parisien ainsi que les velib'.
+            """,
+        )
+
+    def cmd_traffic(self, update, ctx):
+        msg = self.ratp.traffic_status()
+        ctx.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+
+    def cmd_metro(self, update, ctx):
+        msg = ctx.args
+        if not msg:
+            return ctx.bot.send_message(
+                chat_id=update.effective_chat.id, text="Donne moi une station STP."
+            )
+        response = self.ratp.schedule(msg[0].upper())
+        ctx.bot.send_message(
+            chat_id=update.effective_chat.id, text=response.decode("utf-8")
+        )
+
+    def prepare(self):
+        for c in [
+            CommandHandler("start", self.cmd_start),
+            CommandHandler("traffic", self.cmd_traffic),
+            CommandHandler("metro", self.cmd_metro),
+        ]:
+            self.dispatcher.add_handler(c)
+
+    def poll(self):
+        self.prepare()
+        self.updater.start_polling()
+
+
+if __name__ == "__main__":
+    if "TELEGRAM_TOKEN" not in os.environ:
+        print("Please provide token using `TELEGRAM_TOKEN`")
+        exit(1)
+    bot = Assistant(os.environ["TELEGRAM_TOKEN"])
+    bot.poll()
