@@ -1,0 +1,12 @@
+#!/bin/bash
+
+launch=(
+    "Golosino"
+    "Tasty Nouilles"
+    "Monop'"
+    "Sushi"
+    "Boulangerie"
+    "Aujourd'hui tu jeûne"
+)
+
+echo ${launch[$(((RANDOM%${#launch[@]})))]}
