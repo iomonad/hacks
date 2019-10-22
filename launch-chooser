@@ -6,7 +6,7 @@ launch=(
     "Monop'"
     "Sushi"
     "Boulangerie"
-    "Aujourd'hui tu jeûne"
+    "Aujourd'hui tu jeûnes"
 )
 
 echo ${launch[$(((RANDOM%${#launch[@]})))]}
