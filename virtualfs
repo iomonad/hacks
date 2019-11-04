@@ -1,0 +1,6 @@
+#!/bin/bash
+TDIR=/tmp/$(cat /proc/sys/kernel/random/uuid)
+dd if=/dev/zero of=$1.fs bs=1M count=$2
+mkfs -t ext4 $1.fs
+mkdir -p $TDIR
+mount -t auto -o loop $1.fs $TDIR && echo "Created virtual directory of size $2 byte at $TDIR"
