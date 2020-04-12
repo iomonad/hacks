@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import sys, os
+import argparse
+import discogs_client
+
+parser = argparse.ArgumentParser()
+parser.add_argument("artist")
+parser.add_argument("--page-size", default=4, type=int, dest='size')
+parser.add_argument("--type", default='artist', type=str, dest='typep')
+parser.add_argument("target")
+args = parser.parse_args()
+
+dt = os.environ['DISCOGS_TOKEN']
+d = discogs_client.Client('DiscographyFetcher/0.1', user_token=dt)
+
+def search(query, variant=args.typep):
+    request = 0
+    ask = d.search(query, type=variant)
+    if len(ask) > 0:
+        print ("Several response matched query `{}`".format(str(query)))
+        print ("Please choose above the following result:")
+        for i in range(args.size):
+            print ("{}: {}".format(i, ask[i].name))
+        try:
+            request = int(input("Your selection: "))
+            if not 0 <= request <= args.size:
+                raise ValueError('A very specific bad thing happened.')
+        except ValueError as e:
+            print ("Fetcher: {}".format(e))
+            sys.exit(1)
+    if len(ask) == 0:
+        sys.exit(1)
+    return ask[request]
+
+def populate_from_request(releases):
+    for r in releases:
+        if isinstance(r, discogs_client.models.Master):
+            r = r.main_release
+        fname = "[{}] {} ({})".format(r.styles[0], r.title, r.year)
+        print (fname)
+
+try:
+    request = search(args.artist)
+    if not os.path.exists(args.target):
+        os.mkdir(args.target)
+    populate_from_request(request.releases)
+except discogs_client.exceptions.HTTPError as e:
+    print ("Discogs: {}".format(e))
